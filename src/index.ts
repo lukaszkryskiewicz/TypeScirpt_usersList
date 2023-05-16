@@ -74,15 +74,16 @@ class UsersData {
 }
 
 const users = new UsersData();
-users.showAll();
-users.add({ name: "Jan", age: 20 });
-users.add({ name: "Adam", age: 30 });
-users.add({ name: "Kasia", age: 23 });
-users.add({ name: "Basia", age: -6 });
-users.showAll();
-users.remove("Maurycy");
-users.remove("Adam");
-users.showAll();
+console.log("\n");
+console.info("???? Welcome to the UsersApp!");
+console.log("====================================");
+Message.showColorized(Status.Info, "Available actions");
+console.log("\n");
+console.log("list – show all users");
+console.log("add – add new user to the list");
+console.log("remove – remove user from the list");
+console.log("quit – quit the app");
+console.log("\n");
 
 
 enum Action {
@@ -101,12 +102,42 @@ const startApp = () => {
     name: 'action',
     type: 'input',
     message: 'How can I help you?',
-    // choices: [Action.List, Action.Add, Action.Remove, Action.Quit]
   }]).then(async (answers: InquirerAnswers) => {
-    console.log("Chosen action: " + answers.action);
-    if (answers.action !== "quit")
-      startApp();
+    switch (answers.action) {
+      case Action.List:
+        users.showAll();
+        break;
+      case Action.Add:
+        const user = await inquirer.prompt([{
+          name: 'name',
+          type: 'input',
+          message: 'Enter name',
+        }, {
+          name: 'age',
+          type: 'number',
+          message: 'Enter age',
+        }]);
+        users.add(user);
+        break;
+      case Action.Remove:
+        const name = await inquirer.prompt([{
+          name: 'name',
+          type: 'input',
+          message: 'Enter name',
+        }]);
+        users.remove(name.name);
+        break;
+      case Action.Quit:
+        Message.showColorized(Status.Info, "Bye bye!");
+        return;
+      default:
+        Message.showColorized(Status.Error, "Command not found");
+        break;
+    }
+
+    startApp();
   });
 }
+
 
 startApp();
