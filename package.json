@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/node": "^20.1.5",
+    "@types/uuid": "^9.0.1",
     "inquirer": "^8.2.4",
     "nodemon": "^2.0.20",
     "ts-node": "^8.10.2"
@@ -9,6 +10,7 @@
     "watch": "nodemon"
   },
   "dependencies": {
-    "consola": "2.15.3"
+    "consola": "2.15.3",
+    "uuid": "^9.0.0"
   }
 }

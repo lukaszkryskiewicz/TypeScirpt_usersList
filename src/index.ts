@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const consola = require('consola')
+const { v4: uuidv4 } = require('uuid')
 
 enum Status {
   Success = "success",
@@ -37,7 +38,9 @@ class Message {
 
 interface User {
   name: string;
-  age: number
+  age: number;
+  id: string;
+  [key: string]: string | number
 }
 
 class UsersData {
@@ -54,6 +57,7 @@ class UsersData {
 
   add(user: User): void {
     if (user.age > 0 && user.name.length > 0) {
+      user.id = uuidv4();
       this.data.push(user)
       Message.showColorized(Status.Success, 'User has been successfully added!')
     } else {
@@ -61,6 +65,22 @@ class UsersData {
     }
 
   }
+
+  update(id: string, paramName: string, paramValue: string | number): void {
+    const userToChange: User = this.data.find(user => user.id === id)
+    if (userToChange) {
+      if (typeof paramValue === typeof userToChange[paramName]) {
+        userToChange[paramName] = paramValue
+        Message.showColorized(Status.Success, 'User successfully changed!')
+      } else {
+        Message.showColorized(Status.Error, 'Wrong data type!')
+      }
+    } else {
+      Message.showColorized(Status.Error, 'User id is wrong!')
+    }
+  }
+
+
 
   remove(userName: string): void {
     const index: number = this.data.findIndex(user => user.name === userName);
@@ -81,6 +101,7 @@ Message.showColorized(Status.Info, "Available actions");
 console.log("\n");
 console.log("list – show all users");
 console.log("add – add new user to the list");
+console.log("update - update user")
 console.log("remove – remove user from the list");
 console.log("quit – quit the app");
 console.log("\n");
@@ -90,6 +111,7 @@ enum Action {
   List = "list",
   Add = "add",
   Remove = "remove",
+  Update = "update",
   Quit = "quit"
 }
 
@@ -118,6 +140,30 @@ const startApp = () => {
           message: 'Enter age',
         }]);
         users.add(user);
+        break;
+      case Action.Update:
+        const updatedUser = await inquirer.prompt([{
+          name: 'id',
+          type: 'input',
+          message: 'Enter id',
+        }, {
+          name: 'paramName',
+          type: 'list',
+          message: 'What do you want to change',
+          choices: ['name', 'age']
+        }, {
+          name: 'paramValue',
+          type: 'input',
+          message: 'Enter new Value',
+        }]);
+
+        let paramValue: string | number;
+        if (updatedUser.paramName === 'age') {
+          paramValue = parseInt(updatedUser.paramValue)
+        } else {
+          paramValue = updatedUser.paramValue
+        }
+        users.update(updatedUser.id, updatedUser.paramName, paramValue);
         break;
       case Action.Remove:
         const name = await inquirer.prompt([{
